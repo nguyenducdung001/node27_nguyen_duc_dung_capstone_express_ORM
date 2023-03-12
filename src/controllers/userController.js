@@ -88,26 +88,26 @@ const editUser = async (req, res) => {
 
 // delete user
 const delUser = async (req, res) => {
-  // try {
-  let { id } = req.params;
-  let dataOne = await model.nguoi_dung.findOne({
-    where: {
-      id: id,
-    },
-  });
-  if (dataOne) {
-    await model.nguoi_dung.destroy({
+  try {
+    let { id } = req.params;
+    let dataOne = await model.nguoi_dung.findOne({
       where: {
         id: id,
       },
     });
-    res.send(dataOne);
-  } else {
-    res.status(400).send("Not found");
+    if (dataOne) {
+      await model.nguoi_dung.destroy({
+        where: {
+          id: id,
+        },
+      });
+      res.send(dataOne);
+    } else {
+      res.status(400).send("Not found");
+    }
+  } catch (err) {
+    res.status(500).send("Backend errors");
   }
-  // } catch (err) {
-  //   res.status(500).send("Backend errors");
-  // }
 };
 
 module.exports = {
