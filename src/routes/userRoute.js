@@ -5,15 +5,20 @@ const {
   createUser,
   editUser,
   delUser,
+  signUp,
+  login,
 } = require("../controllers/userController");
+const { verifyToken } = require("../utils/jwtoken");
 const userRoute = express.Router();
 
-userRoute.get("/getUser", getUser);
-userRoute.get("/getUserId/:id", getUserId);
+userRoute.get("/getUser", verifyToken, getUser);
+userRoute.get("/getUserId/:id", verifyToken, getUserId);
 
-userRoute.post("/createUser", createUser);
-userRoute.put("/editUser/:id", editUser);
+userRoute.post("/createUser", verifyToken, createUser);
+userRoute.post("/signUp", signUp);
+userRoute.post("/login", login);
+userRoute.put("/editUser/:id", verifyToken, editUser);
 
-userRoute.delete("/delUser/:id", delUser);
+userRoute.delete("/delUser/:id", verifyToken, delUser);
 
 module.exports = userRoute;

@@ -1,3 +1,4 @@
+const { failCode, successCode } = require("../configs/response");
 const sequelize = require("../models/index");
 const initModels = require("../models/init-models");
 const model = initModels(sequelize);
@@ -73,7 +74,7 @@ const getSaveImageById = async (req, res) => {
       if (dataSave) {
         res.status(200).send(dataSave);
       } else {
-        res.status(400).send("not found");
+        failCode(res, dataCom, "This img has not been saved yet ");
       }
     } else {
       res.status(400).send("not found");
@@ -121,7 +122,7 @@ const getSaveImageByIdUser = async (req, res) => {
       if (dataSave) {
         res.status(200).send(dataSave);
       } else {
-        res.status(400).send("not found");
+        failCode(res, dataCom, "This user hasn't saved any img yet");
       }
     } else {
       res.status(400).send("not found");
@@ -143,11 +144,39 @@ const getPhotoByIdUser = async (req, res) => {
     if (dataCom) {
       let dataSave = await model.hinh_anh.findAll({
         where: {
-          nguoi_dung_id: dataCom.id,
+          nguoi_dung_id: id,
         },
       });
       if (dataSave) {
         res.status(200).send(dataSave);
+      } else {
+        failCode(res, dataCom, "No img of this user");
+      }
+    } else {
+      res.status(400).send("user not found");
+    }
+  } catch (err) {
+    res.status(500).send("Backend errors");
+  }
+};
+
+// get photo by name
+const getPhotoByName = async (req, res) => {
+  try {
+    let { name } = req.params;
+    let dataCom = await model.hinh_anh.findOne({
+      where: {
+        ten_hinh: name,
+      },
+    });
+    if (dataCom) {
+      let dataName = await model.hinh_anh.findAll({
+        where: {
+          ten_hinh: dataCom.ten_hinh,
+        },
+      });
+      if (dataName) {
+        res.status(200).send(dataName);
       } else {
         res.status(400).send("not found");
       }
@@ -214,4 +243,5 @@ module.exports = {
   getPhotoByIdUser,
   delPhotoById,
   createPhoto,
+  getPhotoByName,
 };

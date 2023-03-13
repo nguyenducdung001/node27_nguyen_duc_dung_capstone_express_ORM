@@ -1,6 +1,9 @@
 const sequelize = require("../models/index");
 const initModels = require("../models/init-models");
 const model = initModels(sequelize);
+const bcrypt = require("bcrypt");
+const { successCode } = require("../configs/response");
+const { createToken } = require("../utils/jwtoken");
 
 // get all
 const getUser = async (req, res) => {
@@ -110,10 +113,59 @@ const delUser = async (req, res) => {
   }
 };
 
+// sign up
+const signUp = async (req, res) => {
+  try {
+    let { email, mat_khau, ho_ten, tuoi, anh_dai_dien } = req.body;
+    let newUser = {
+      email,
+      mat_khau: bcrypt.hashSync(mat_khau, 10),
+      ho_ten,
+      tuoi,
+      anh_dai_dien,
+    };
+    let data = await model.nguoi_dung.create(newUser);
+    if (data) {
+      res.status(201).send(data);
+    } else {
+      res.status(400).send("error");
+    }
+  } catch (err) {
+    res.status(500).send("Backend errors");
+  }
+};
+
+// login
+const login = async (req, res) => {
+  try {
+    let { email, mat_khau } = req.body;
+    let checkUser = await model.nguoi_dung.findOne({
+      where: {
+        email,
+      },
+    });
+    if (checkUser) {
+      let checkPass = bcrypt.compareSync(mat_khau, checkUser.mat_khau);
+      if (checkPass) {
+        let token = createToken(checkUser);
+        successCode(res, token, "login successfully");
+      } else {
+        res.status(400).send("Password is incorrect");
+      }
+    } else {
+      res.status(400).send("Email does not exist");
+    }
+  } catch (err) {
+    res.status(500).send("Backend errors");
+  }
+};
+
 module.exports = {
   getUser,
   getUserId,
   createUser,
   editUser,
   delUser,
+  signUp,
+  login,
 };

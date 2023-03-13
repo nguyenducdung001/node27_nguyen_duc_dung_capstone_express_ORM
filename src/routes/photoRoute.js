@@ -9,20 +9,27 @@ const {
   getPhotoByIdUser,
   delPhotoById,
   createPhoto,
+  getPhotoByName,
 } = require("../controllers/photoController");
+const { uploadImg, uploadImg1 } = require("../controllers/uploadController");
+
+const { verifyToken } = require("../utils/jwtoken");
 const photoRoute = express.Router();
 
-photoRoute.get("/getPhoto", getPhoto);
+photoRoute.get("/getPhoto", verifyToken, getPhoto);
 photoRoute.get("/getPhotoUser/:id", getPhotoUser);
-photoRoute.get("/getPhotoComment/:id", getPhotoComment);
-photoRoute.get("/getSaveImageById/:id", getSaveImageById);
-photoRoute.get("/getSaveImageByIdUser/:id", getSaveImageByIdUser);
-photoRoute.get("/getPhotoByIdUser/:id", getPhotoByIdUser);
+photoRoute.get("/getPhotoComment/:id", verifyToken, getPhotoComment);
+photoRoute.get("/getSaveImageById/:id", verifyToken, getSaveImageById);
+photoRoute.get("/getSaveImageByIdUser/:id", verifyToken, getSaveImageByIdUser);
+photoRoute.get("/getPhotoByIdUser/:id", verifyToken, getPhotoByIdUser);
+photoRoute.get("/getPhotoByName/:name", verifyToken, getPhotoByName);
 
-photoRoute.post("/createComment", createComment);
+photoRoute.post("/createComment", verifyToken, createComment);
 
-photoRoute.post("/creatPhoto", createPhoto);
+photoRoute.post("/creatPhoto", verifyToken, createPhoto);
 
-photoRoute.delete("/delPhotoById/:id", delPhotoById);
+photoRoute.post("/upload", uploadImg, uploadImg1);
+
+photoRoute.delete("/delPhotoById/:id", verifyToken, delPhotoById);
 
 module.exports = photoRoute;
