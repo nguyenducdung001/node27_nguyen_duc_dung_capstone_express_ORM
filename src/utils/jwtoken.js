@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { failCodeAuth } = require("../configs/response");
 
 const createToken = (data) => {
-  let token = jwt.sign({ data }, "key", { expiresIn: "5m" });
+  let token = jwt.sign({ data }, "key", { expiresIn: "10m" });
   return token;
 };
 

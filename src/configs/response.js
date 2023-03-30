@@ -5,6 +5,12 @@ const successCode = (res, data, message) => {
     content: data,
   });
 };
+const successCreCode = (res, data, message) => {
+  res.status(201).json({
+    message,
+    content: data,
+  });
+};
 const failCode = (res, data, message) => {
   res.status(400).json({
     message,
@@ -26,4 +32,5 @@ module.exports = {
   failCode,
   errorCode,
   failCodeAuth,
+  successCreCode,
 };

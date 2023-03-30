@@ -1,22 +1,26 @@
-const { failCode, successCode } = require("../configs/response");
+const {
+  failCode,
+  successCode,
+  successCreCode,
+} = require("../configs/response");
 const sequelize = require("../models/index");
 const initModels = require("../models/init-models");
 const model = initModels(sequelize);
 
-// get photo
+// Lấy danh sách hình ảnh
 
 const getPhoto = async (req, res) => {
   try {
     let data = await model.hinh_anh.findAll({
       include: ["nguoi_dung"],
     });
-    res.status(200).send(data);
+    successCode(res, data, "successfully");
   } catch (err) {
     res.status(500).send("Backend errors");
   }
 };
 
-// get photo detail
+// Lấy thông tin ảnh và người tạo ảnh bằng id ảnh
 const getPhotoUser = async (req, res) => {
   try {
     let { id } = req.params;
@@ -27,7 +31,7 @@ const getPhotoUser = async (req, res) => {
       include: ["nguoi_dung"],
     });
     if (dataDetail) {
-      res.status(200).send(dataDetail);
+      successCode(res, dataDetail, "successfully");
     } else {
       res.status(400).send("Photo is not exist");
     }
@@ -36,7 +40,7 @@ const getPhotoUser = async (req, res) => {
   }
 };
 
-// get photo detail comment
+// Lấy thông tin bình luân theo id ảnh
 const getPhotoComment = async (req, res) => {
   try {
     let { id } = req.params;
@@ -47,7 +51,7 @@ const getPhotoComment = async (req, res) => {
       include: ["binh_luans"],
     });
     if (dataCom) {
-      res.status(200).send(dataCom.binh_luans);
+      successCode(res, dataCom.binh_luans, "successfully");
     } else {
       res.status(400).send("Not found");
     }
@@ -56,7 +60,7 @@ const getPhotoComment = async (req, res) => {
   }
 };
 
-// get save image by id
+// Lấy thông tin đã lưu hình này hay chưa theo id ảnh
 const getSaveImageById = async (req, res) => {
   try {
     let { id } = req.params;
@@ -72,7 +76,7 @@ const getSaveImageById = async (req, res) => {
         },
       });
       if (dataSave) {
-        res.status(200).send(dataSave);
+        successCode(res, dataSave, "successfully");
       } else {
         failCode(res, dataCom, "This img has not been saved yet ");
       }
@@ -84,18 +88,19 @@ const getSaveImageById = async (req, res) => {
   }
 };
 
-// post comment
+// Lưu thông tin bình luận của người dùng với ảnh
 const createComment = async (req, res) => {
   try {
     let { nguoi_dung_id, hinh_id, noi_dung } = req.body;
     let newComment = {
       nguoi_dung_id,
       hinh_id,
+      ngay_binh_luan: Date.now(),
       noi_dung,
     };
     let data = await model.binh_luan.create(newComment);
     if (data) {
-      res.status(201).send(data);
+      successCreCode(res, data, "create successfully");
     } else {
       res.status(400).send("error");
     }
@@ -104,7 +109,7 @@ const createComment = async (req, res) => {
   }
 };
 
-// get save image by id user
+// Lấy thông tin đã lưu hình ảnh hay chưa theo id người dùng
 const getSaveImageByIdUser = async (req, res) => {
   try {
     let { id } = req.params;
@@ -120,7 +125,7 @@ const getSaveImageByIdUser = async (req, res) => {
         },
       });
       if (dataSave) {
-        res.status(200).send(dataSave);
+        successCode(res, dataSave, "successfully");
       } else {
         failCode(res, dataCom, "This user hasn't saved any img yet");
       }
@@ -132,7 +137,7 @@ const getSaveImageByIdUser = async (req, res) => {
   }
 };
 
-// get photo created by id user
+// Lấy thông tin hình ảnh được tạo bởi id người dùng
 const getPhotoByIdUser = async (req, res) => {
   try {
     let { id } = req.params;
@@ -148,7 +153,7 @@ const getPhotoByIdUser = async (req, res) => {
         },
       });
       if (dataSave) {
-        res.status(200).send(dataSave);
+        successCode(res, dataSave, "successfully");
       } else {
         failCode(res, dataCom, "No img of this user");
       }
@@ -160,10 +165,10 @@ const getPhotoByIdUser = async (req, res) => {
   }
 };
 
-// get photo by name
+// Lấy thông tin hình ảnh theo tên
 const getPhotoByName = async (req, res) => {
   try {
-    let { name } = req.params;
+    let { name } = req.query;
     let dataCom = await model.hinh_anh.findOne({
       where: {
         ten_hinh: name,
@@ -176,7 +181,7 @@ const getPhotoByName = async (req, res) => {
         },
       });
       if (dataName) {
-        res.status(200).send(dataName);
+        successCode(res, dataName, "successfully");
       } else {
         res.status(400).send("not found");
       }
@@ -188,7 +193,7 @@ const getPhotoByName = async (req, res) => {
   }
 };
 
-// create photo
+// Tạo ảnh
 const createPhoto = async (req, res) => {
   try {
     let { ten_hinh, duong_dan, mo_ta, nguoi_dung_id } = req.body;
@@ -200,7 +205,7 @@ const createPhoto = async (req, res) => {
     };
     let data = await model.hinh_anh.create(newPhoto);
     if (data) {
-      res.status(201).send(data);
+      successCreCode(res, data, "create successfully");
     } else {
       res.status(400).send("error");
     }
@@ -209,7 +214,7 @@ const createPhoto = async (req, res) => {
   }
 };
 
-// delete photo by id
+// Xóa ảnh theo id
 const delPhotoById = async (req, res) => {
   try {
     let { id } = req.params;
@@ -224,7 +229,8 @@ const delPhotoById = async (req, res) => {
           id: id,
         },
       });
-      res.send(dataOne);
+
+      successCode(res, dataOne, "delete successfully");
     } else {
       res.status(400).send("Not found");
     }

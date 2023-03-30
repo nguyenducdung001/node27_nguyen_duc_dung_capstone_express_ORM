@@ -22,7 +22,7 @@ photoRoute.get("/getPhotoComment/:id", verifyToken, getPhotoComment);
 photoRoute.get("/getSaveImageById/:id", verifyToken, getSaveImageById);
 photoRoute.get("/getSaveImageByIdUser/:id", verifyToken, getSaveImageByIdUser);
 photoRoute.get("/getPhotoByIdUser/:id", verifyToken, getPhotoByIdUser);
-photoRoute.get("/getPhotoByName/:name", verifyToken, getPhotoByName);
+photoRoute.get("/getPhotoByName", verifyToken, getPhotoByName);
 
 photoRoute.post("/createComment", verifyToken, createComment);
 

@@ -2,7 +2,11 @@ const sequelize = require("../models/index");
 const initModels = require("../models/init-models");
 const model = initModels(sequelize);
 const bcrypt = require("bcrypt");
-const { successCode } = require("../configs/response");
+const {
+  successCode,
+  errorCode,
+  successCreCode,
+} = require("../configs/response");
 const { createToken } = require("../utils/jwtoken");
 
 // get all
@@ -10,9 +14,9 @@ const getUser = async (req, res) => {
   try {
     let data = await model.nguoi_dung.findAll();
 
-    res.status(200).send(data);
+    successCode(res, data, "successfully");
   } catch (err) {
-    res.status(500).send("Backend errors");
+    errorCode(res, "Backend error");
   }
 };
 
@@ -26,7 +30,7 @@ const getUserId = async (req, res) => {
       },
     });
     if (dataOne) {
-      res.status(200).send(dataOne);
+      successCode(res, dataOne, "successfully");
     } else {
       res.status(400).send("User is not exist");
     }
@@ -41,16 +45,16 @@ const createUser = async (req, res) => {
     let { email, mat_khau, ho_ten, tuoi, anh_dai_dien } = req.body;
     let newUser = {
       email,
-      mat_khau,
+      mat_khau: bcrypt.hashSync(mat_khau, 10),
       ho_ten,
       tuoi,
       anh_dai_dien,
     };
     let data = await model.nguoi_dung.create(newUser);
     if (data) {
-      res.status(201).send(data);
+      successCreCode(res, data, "create successfully");
     } else {
-      res.status(400).send("error");
+      res.status(400).send("Not found");
     }
   } catch (err) {
     res.status(500).send("Backend errors");
@@ -80,7 +84,7 @@ const editUser = async (req, res) => {
           id: id,
         },
       });
-      res.status(200).send(userEdit);
+      successCode(res, userEdit, "Edit successfully");
     } else {
       res.status(400).send("Not found");
     }
@@ -104,7 +108,8 @@ const delUser = async (req, res) => {
           id: id,
         },
       });
-      res.send(dataOne);
+      // res.send(dataOne);
+      successCode(res, dataOne, "delete successfully");
     } else {
       res.status(400).send("Not found");
     }
@@ -126,7 +131,7 @@ const signUp = async (req, res) => {
     };
     let data = await model.nguoi_dung.create(newUser);
     if (data) {
-      res.status(201).send(data);
+      successCreCode(res, data, "sign up successfully");
     } else {
       res.status(400).send("error");
     }
